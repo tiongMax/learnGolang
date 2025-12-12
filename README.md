@@ -58,9 +58,11 @@ I am building this project over one week, adding new commands and complexity dai
 
 3.  **Example Usage:**
     ```bash
-    goshell> echo hello world
+    gosh> echo hello world
     hello world
-    goshell> exit
+    gosh> echo    multiple     spaces
+    multiple spaces
+    gosh> exit
     Goodbye!
     ```
 
@@ -72,6 +74,11 @@ I am building this project over one week, adding new commands and complexity dai
 
 ### **1. Input Handling (`bufio` vs `fmt`)**
 I learned that standard `fmt.Scanln` is insufficient for a shell because it stops reading at the first whitespace. To support commands with arguments (like `echo hello world`), I used `bufio.NewScanner(os.Stdin)`, which captures the entire input stream up to the newline character.
+
+**Key Implementation Details:**
+* Created scanner once before the loop: `scanner := bufio.NewScanner(os.Stdin)`
+* Used `scanner.Scan()` return value to detect EOF and exit gracefully
+* Combined with `strings.Fields()` to intelligently parse input while handling edge cases (empty input, multiple spaces, tabs)
 
 ### **2. System Interaction**
 *Upcoming: Notes on how `os.Getwd` interacts with the kernel and why `cd` must be a shell builtin.*
@@ -86,10 +93,16 @@ I learned that standard `fmt.Scanln` is insufficient for a shell because it stop
 <details>
 <summary><strong>Click to expand Daily Logs</strong></summary>
 
-### Day 1: The Skeleton
-* **Progress:** Built the main infinite `for` loop and the command parser.
-* **Key Learning:** `strings.Fields()` is much better than `strings.Split()` for CLI parsing because it automatically ignores multiple spaces between arguments.
-* **Challenge:** Had to ensure the program exits gracefully without panic when the user inputs an empty string.
+### Day 1: The Engine ✅
+* **Progress:** Built the complete REPL (Read-Eval-Print Loop) with robust input parsing and command execution.
+* **Commands Implemented:** `exit`, `echo`
+* **Key Learning:** `strings.Fields()` is much better than `strings.Split()` for CLI parsing because it automatically ignores multiple spaces between arguments and handles tabs/newlines.
+* **Challenges Solved:**
+  * Gracefully handling EOF (Ctrl+D/Ctrl+Z) using `scanner.Scan()` return value
+  * Preventing panic on empty input by checking `len(parts) == 0` after `strings.Fields()`
+  * Handling whitespace-only input (spaces/tabs) that would create empty slices
+  * Understanding `break` (exits loop/switch) vs `return` (exits function) for the `exit` command
+* **Technical Insight:** The scanner must be created **once** before the loop (not inside it) for efficiency, as it maintains an internal buffer that would be lost if recreated each iteration.
 
 ### Day 2: Navigation
 * *Pending...*
